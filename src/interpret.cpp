@@ -14,6 +14,13 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
         }
     }
 
+    // Create global obsidian_program
+    lines.push_back({"Create", "global", "global obsidian_program"});
+    
+    		
+    lines.push_back({"Create", "RETURN", return_token});
+    lines.push_back({"Create", "RETURN", return_token}); 
+    lines.push_back({"Create", "RETURN", return_token}); 
 
 
     for (size_t i = 0; i < tokens.size(); i++) {
@@ -23,16 +30,17 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
 
           case Tokens::_RETURN: {
 		
-	 lines.push_back({"Program", "RETURN", ideal_token});
-  	  const auto& ideal_token = tokens[i + 1];
-           
+	    const auto& return_token = tokens[i + 1];
+	    lines.push_back({"Program", "RETURN", return_token});
+
 
             break;
           }
 
           case Tokens::_SEMI:
   
-            break;
+            
+	    break;
 
           case Tokens::_INT_LIT:
 
@@ -46,13 +54,16 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
             lines.push_back({"Header", "extern WriteConsoleA", "NA"});
             lines.push_back({"Program", "PRINT", ideal_token});
             lines.push_back({"Section", ".bss", "written resd 1"});
-	
+	    lines.push_back({"Section", "data", "str0 db " + '"' + ideal_token + '"' + ", 13,10" });
+	    lines.push_back({"Info", "section", ".bss"}); 
+            lines.push_back({"Info", "section", ".data"}); 
+	    lines.push_back({"Info", "section", ".text"}); 
 
+		
             break;
           }
 
           case Tokens::_STRING:
-            std::cout << "STRING(" << t.strValue << ")" << std::endl;
             break;
         }
     }
