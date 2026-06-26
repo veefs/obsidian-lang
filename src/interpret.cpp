@@ -22,10 +22,25 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
         switch (t.keywords) {
 
           case Tokens::_RETURN: {
+		
+	 lines.push_back({"Program", "RETURN", ideal_token});
+  	  const auto& ideal_token = tokens[i + 1];
+           
 
-          
+            break;
+          }
 
-          
+          case Tokens::_SEMI:
+  
+            break;
+
+          case Tokens::_INT_LIT:
+
+            break;
+
+          case Tokens::_PRINT: {
+            
+            c
 
             break;
           }
@@ -45,7 +60,7 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
             lines.push_back({"Header", "extern WriteConsoleA", "NA"});
             lines.push_back({"Program", "PRINT", ideal_token});
             lines.push_back({"Section", ".bss", "written resd 1"});
-
+	
 
             break;
           }
