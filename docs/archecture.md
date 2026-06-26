@@ -12,6 +12,8 @@ Picks up all possible tokens so far:
 `_INT_LIT`
 `_PRINT`
 `_SEMI`
+`_INT`
+`_LET`
 
 and sends them to interepter which tokenizes them again for an easier style of sorting by interepter token later on.
 

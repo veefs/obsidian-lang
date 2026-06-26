@@ -12,6 +12,12 @@ void Tokenize(std::string line, std::vector<Tokens>& tokens) {
             continue;
         }
 
+        char equal = '=';
+        if (c == equal) {
+            tokens.push_back(Tokens(Tokens::_EQUAL));
+            continue;
+        }
+
         if (c == '"') {
             i++; 
             std::string word;
@@ -48,6 +54,12 @@ void Tokenize(std::string line, std::vector<Tokens>& tokens) {
                 tokens.push_back(Tokens(Tokens::_RETURN));
             } else if (word == "print") {
                 tokens.push_back(Tokens(Tokens::_PRINT));
+            } else if(word == "let") {
+              
+                tokens.push_back(Tokens(Tokens::_LET));
+            } else if(word == "int") {
+                tokens.push_back(Tokens(Tokens::_INT));
+              
             }
         }
     }

@@ -81,6 +81,8 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
                     std::cerr << "Interpret: 'return' must be followed by an integer literal\n";
                     break;
                 }
+
+                std::cout << "_RETURN" << std::endl;
                 // No branching exists yet, so whichever `return` is
                 // lexically last is the one that actually wins at runtime -
                 // just remember the value, the real exit code/call is
@@ -97,6 +99,8 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
                     std::cerr << "Interpret: 'print' must be followed by a string literal\n";
                     break;
                 }
+
+                std::cout << "_PRINT" << std::endl;
                 const std::string& strValue = tokens[i + 1].strValue;
 
                 std::string label = "str" + std::to_string(dataStrings.size());
@@ -112,14 +116,42 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
                 i++; // consume the string literal we just looked ahead at
                 break;
             }
+            case Tokens::_LET:
+                std::cout << "_LET" << std::endl;
 
-            case Tokens::_SEMI:
+                std::cout << tokens[i + 1].strValue << "bru";
+      
+                lines.push_back({"Section", ".data",  "my_int dq"  });
+                break;
+            
+
+            // Opperators
+
+            case Tokens::_EQUAL:
+                std::cout << "_EQUAL" << std::endl;
+                break;
+
+            // Var Types
+
+            case Tokens::_INT:
+            std::cout << "_INT" << std::endl;
+                break;
+
             case Tokens::_INT_LIT:
-                break; // pure separator / already consumed via lookahead
+            std::cout << "_INT_LIT" << std::endl;
+                break; 
 
             case Tokens::_STRING:
-                std::cout << "STRING(" << t.strValue << ") - not attached to a statement, ignored\n";
+                std::cout << "_STRING(" << t.strValue << ") - not attached to a statement, ignored\n";
                 break;
+            
+
+            // Semi
+
+            case Tokens::_SEMI:
+                std::cout << "_SEMI" << std::endl;
+                break;
+      
         }
     }
 

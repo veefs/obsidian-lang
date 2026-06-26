@@ -9,7 +9,10 @@ public:
         _PRINT,
         _SEMI,
         _STRING,
-        _INT_LIT
+        _INT_LIT,
+        _INT,
+        _LET,
+        _EQUAL
     };
 
     Tokens(Keywords kw) : keywords(kw), value(0) {}

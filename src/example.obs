@@ -1,4 +1,5 @@
 print "hello";
 
+let int test = 5;
 
 return 12;
