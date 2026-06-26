@@ -38,20 +38,6 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
 
             break;
 
-          case Tokens::_PRINT: {
-            
-            c
-
-            break;
-          }
-
-          case Tokens::_SEMI:
-  
-            break;
-
-          case Tokens::_INT_LIT:
-
-            break;
 
           case Tokens::_PRINT: {
             
