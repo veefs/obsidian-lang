@@ -34,10 +34,7 @@ int main(int argc, char* argv[]) {
     std::ofstream asmFile("example.asm");
 
     if (asmFile.is_open()) {
-        asmFile << "global obsidian_program" << std::endl;
-        asmFile << "section .text" << std::endl;
-        asmFile << "obsidian_program:" << std::endl;
-
+        
 
         std::cout << std::endl << "Interpreting" << std::endl;
 
