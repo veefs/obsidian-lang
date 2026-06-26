@@ -1,2 +1,4 @@
+print "hello";
+
+
 return 12;
-print "test";
