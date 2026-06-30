@@ -14,7 +14,6 @@
 //   Create  <Specifier>, <specifier_type>,<specifier_value>
 //
 // All five shapes reuse one flat struct - we just read whichever fields
-// matter for a given "category".
 // ---------------------------------------------------------------------------
 struct Line {
     std::string category; // Section | Header | Program | Info | Create
@@ -43,8 +42,9 @@ std::string buildPrintBlock(const std::string& strValue, const std::string& labe
 
 // return's register setup + the ExitProcess call are built as ONE block on
 // purpose - see the comment near sawReturn below for why.
+
 std::string buildExitBlock(int code) {
-    return
+    return 
         "    ; return " + std::to_string(code) + "\n"
         "    sub rsp, 40\n"
         "    mov ecx, " + std::to_string(code) + "\n"
@@ -116,12 +116,22 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
                 i++; // consume the string literal we just looked ahead at
                 break;
             }
+
             case Tokens::_LET:
                 std::cout << "_LET" << std::endl;
 
                 std::cout << tokens[i + 1].strValue << "bru";
       
                 lines.push_back({"Section", ".data",  "my_int dq"  });
+                break;
+            
+            case Tokens::_CONST:
+                std::cout << "_CONST" << std::endl;
+
+                std::cout << tokens[i + 1].strValue << "bru";
+
+ 
+                lines.push_back({"Section", ".rdata",  "my_int dq"  });
                 break;
             
 
@@ -246,6 +256,16 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
         for (const auto& l : lines) {
             if (l.category != "Section" || l.label != ".data") continue;
             if (!wroteHeader) { outputFile << "section .data\n"; wroteHeader = true; }
+            outputFile << "    " << l.text << "\n";
+        }
+    }
+
+    // 9. Section, .rdata, <rdata_inputs> 
+    {
+        bool wroteHeader = false;
+        for (const auto& l : lines) {
+            if (l.category != "Section" || l.label != ".rdata") continue;
+            if (!wroteHeader) { outputFile << "section .rdata\n"; wroteHeader = true; }
             outputFile << "    " << l.text << "\n";
         }
     }

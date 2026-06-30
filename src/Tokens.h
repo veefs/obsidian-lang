@@ -12,7 +12,8 @@ public:
         _INT_LIT,
         _INT,
         _LET,
-        _EQUAL
+        _EQUAL,
+        _CONST
     };
 
     Tokens(Keywords kw) : keywords(kw), value(0) {}

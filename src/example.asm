@@ -27,5 +27,6 @@ section .bss
     written resd 1
 
 section .data
-    my_int dq
     str0 db "hello", 13, 10
+section .rdata
+    my_int dq

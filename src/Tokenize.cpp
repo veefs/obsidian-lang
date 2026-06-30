@@ -59,7 +59,8 @@ void Tokenize(std::string line, std::vector<Tokens>& tokens) {
                 tokens.push_back(Tokens(Tokens::_LET));
             } else if(word == "int") {
                 tokens.push_back(Tokens(Tokens::_INT));
-              
+            } else if(word == "const") {
+              tokens.push_back(Tokens(Tokens::_CONST));
             }
         }
     }
