@@ -27,3 +27,10 @@
 
 - _EQUAL
 
+### Functions
+
+- _FUNC -> func test()
+
+
+
+

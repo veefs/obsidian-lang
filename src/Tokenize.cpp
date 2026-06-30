@@ -13,6 +13,7 @@ void Tokenize(std::string line, std::vector<Tokens>& tokens) {
             continue;
         }
 
+
         char equal = '=';
         if (c == equal) {
             tokens.push_back(Tokens(Tokens::_EQUAL));
@@ -29,6 +30,12 @@ void Tokenize(std::string line, std::vector<Tokens>& tokens) {
            
             tokens.push_back(Tokens(Tokens::_STRING, word));
           
+            continue;
+        }
+
+        if (c == '-' && i + 1 < line.size() && line[i + 1] == '>') {
+            tokens.push_back(Tokens(Tokens::_RET_OP));
+            i++; // consume the '>' too
             continue;
         }
 
@@ -51,18 +58,26 @@ void Tokenize(std::string line, std::vector<Tokens>& tokens) {
             } 
             i--;
 
+            
+
             if (word == "return") {
                 tokens.push_back(Tokens(Tokens::_RETURN));
-            } else if (word == "print") {
+            } 
+            else if (word == "print") {
                 tokens.push_back(Tokens(Tokens::_PRINT));
             } else if(word == "let") {
-              
                 tokens.push_back(Tokens(Tokens::_LET));
             } else if(word == "int") {
                 tokens.push_back(Tokens(Tokens::_INT));
             } else if(word == "const") {
               tokens.push_back(Tokens(Tokens::_CONST));
-            } else {
+            } else if(word == "func") {
+                tokens.push_back(Tokens(Tokens::_FUNCTION));
+            } else if(word == "->") {
+                tokens.push_back(Tokens(Tokens::_RET_OP));
+            }
+            
+            else {
                 tokens.push_back(Tokens(Tokens::_IDENT, word));
             }
         }

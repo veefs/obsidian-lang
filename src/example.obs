@@ -1,9 +1,10 @@
 print "hello";
-
 print "terry davis 200iq divine intellect ahh";
 
 const int variable = 5;
-
 const int otherVariable = 10;
+
+func test() -> variable + otherVariable;
+func hello();
 
 return 12;

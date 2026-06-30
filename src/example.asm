@@ -5,6 +5,11 @@ extern WriteConsoleA
 extern ExitProcess
 
 section .text
+
+test:
+test:
+hello:
+hello:
 obsidian_program:
     ; print "hello"
     sub rsp, 40

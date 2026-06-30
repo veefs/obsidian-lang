@@ -14,7 +14,9 @@ public:
         _LET,
         _EQUAL,
         _CONST,
-        _IDENT
+        _IDENT,
+        _FUNCTION,
+        _RET_OP
     };
 
     Tokens(Keywords kw) : keywords(kw), value(0) {}

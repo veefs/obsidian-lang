@@ -9,6 +9,7 @@
 //
 //   Section <Specifier>, <Section_type>,  <value_in_section>
 //   Header  <Specifier>, <header code>
+//   Function <Specificer>, <Function Name> <Function Code>
 //   Program <Specifier>, <program_type>,  <value>
 //   Info    <Specifier>, <info_require>,  <info_value>
 //   Create  <Specifier>, <specifier_type>,<specifier_value>
@@ -22,6 +23,8 @@ struct Line {
 };
 
 std::vector<std::string> variableNames;
+std::vector<std::string> functionNames;
+
 
 namespace {
 
@@ -125,8 +128,7 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
                 std::cout << "_LET" << std::endl;
 
                 
-      
-                lines.push_back({"Section", ".data",  "my_int dq"  });
+                
                 break;
             
             case Tokens::_CONST: {
@@ -149,6 +151,12 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
             }
 
             // Opperators
+
+            case Tokens::_RET_OP: 
+                std::cout << "_RET_OP" << std::endl;
+                                
+                break;
+           
 
             case Tokens::_EQUAL:
                 std::cout << "_EQUAL" << std::endl;
@@ -174,7 +182,22 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
             case Tokens::_SEMI:
                 std::cout << "_SEMI" << std::endl;
                 break;
-      
+
+            // Function
+
+            case Tokens::_FUNCTION: {
+                std::cout << "_FUNCTION" << std::endl;
+                                
+                std::string functionName = tokens[i+1].strValue;
+
+                if(tokens[i+2].keywords == Tokens::_RET_OP) {
+                    
+                }
+               
+                lines.push_back({"Function", functionName, functionName});
+                break;
+          }
+
         }
     }
 
@@ -220,9 +243,23 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
     for (const auto& l : lines) {
         if (l.category == "Info" && l.label == "section" && l.text == ".text") {
             outputFile << "section " << l.text << "\n";
+            outputFile << "\n";
             break;
         }
+
     }
+
+    // function
+
+    for (const auto& l : lines) {
+        if (l.category == "Function" ) {
+
+            outputFile << l.label << ":\n";
+            outputFile << l.text << ":\n";
+
+        }
+    }
+
 
     // 4. Create, program, obsidian_program
     for (const auto& l : lines) {
@@ -231,6 +268,8 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
             break;
         }
     }
+
+    
 
     // 5 & 6. Program, all types
     {
