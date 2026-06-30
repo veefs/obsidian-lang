@@ -75,6 +75,12 @@ After the interepter breaks everything down into sorting we apply an alogirthim 
 
 **This will have to be done dynamically but it should be easy, just set the str name to incriment for every data type and then use that later on shouldn't be that bad, and then the string is just whatever you throw into it.**
 
+9.
+
+`Section, .rdata, <rdata_inputs>`
+
+**Again, dynamically written into the file, but this time repeats have to be heavily tracked**
+
 ### Assembly File
 
 Because currently our only real tokens are

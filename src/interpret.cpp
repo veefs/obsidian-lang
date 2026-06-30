@@ -120,7 +120,7 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
             case Tokens::_LET:
                 std::cout << "_LET" << std::endl;
 
-                std::cout << tokens[i + 1].strValue << "bru";
+                std::cout << tokens[i + 1].value << "bru";
       
                 lines.push_back({"Section", ".data",  "my_int dq"  });
                 break;
@@ -144,11 +144,11 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
             // Var Types
 
             case Tokens::_INT:
-            std::cout << "_INT" << std::endl;
+            std::cout << "_INT " << t.value << std::endl;
                 break;
 
             case Tokens::_INT_LIT:
-            std::cout << "_INT_LIT" << std::endl;
+            std::cout << "_INT_LIT " << t.value << std::endl;
                 break; 
 
             case Tokens::_STRING:
@@ -258,6 +258,9 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
             if (!wroteHeader) { outputFile << "section .data\n"; wroteHeader = true; }
             outputFile << "    " << l.text << "\n";
         }
+
+	if(outputFile) outputFile << "\n";
+
     }
 
     // 9. Section, .rdata, <rdata_inputs> 
@@ -268,5 +271,7 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
             if (!wroteHeader) { outputFile << "section .rdata\n"; wroteHeader = true; }
             outputFile << "    " << l.text << "\n";
         }
+
+	if(outputFile) outputFile << "\n";
     }
 }

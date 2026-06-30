@@ -1,6 +1,6 @@
 # Obsidian Lang
 
-** Toy programming language written in c++ and assembly ** 
+**Toy programming language written in c++ and assembly aimed as a learning experience for myself to more understand how coding languages truly work** 
 
 ## What is Obsidian Lang?
 
@@ -10,6 +10,4 @@
 
 - Obsidian Lang is currently in **very very very** early development so please not any bugs / issues **WILL** be fixed, but you just have to give it time because this is a somewhat more complicated project
 
-## Features
 
-- So far the features consist of two things: print <"STRING";> and return <INT_LIT;> 
