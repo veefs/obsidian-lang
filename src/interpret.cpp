@@ -21,6 +21,8 @@ struct Line {
     std::string text;     // the value / emitted code
 };
 
+std::vector<std::string> variableNames;
+
 namespace {
 
 // One WriteConsoleA call, with the CRLF byte count baked in.
@@ -40,8 +42,7 @@ std::string buildPrintBlock(const std::string& strValue, const std::string& labe
         "    add rsp, 40";
 }
 
-// return's register setup + the ExitProcess call are built as ONE block on
-// purpose - see the comment near sawReturn below for why.
+
 
 std::string buildExitBlock(int code) {
     return 
@@ -67,6 +68,7 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
 
     // Steps 1, 3, 4 are unconditional right now - every program gets a
     // global directive, a .text section, and the obsidian_program label.
+
     lines.push_back({"Create", "global",  "global obsidian_program"});
     lines.push_back({"Create", "program", "obsidian_program"});
     lines.push_back({"Info",   "section", ".text"});
@@ -118,22 +120,33 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
             }
 
             case Tokens::_LET:
+
+            
                 std::cout << "_LET" << std::endl;
 
-                std::cout << tokens[i + 1].value << "bru";
+                
       
                 lines.push_back({"Section", ".data",  "my_int dq"  });
                 break;
             
-            case Tokens::_CONST:
+            case Tokens::_CONST: {
+
+                if (i + 3 >= tokens.size()) { break; }
+
+                if(static_cast<int>(tokens[i+2].keywords) != Tokens::_IDENT) {
+                    std::cerr << "Correct syntax for const = const <variable_type> <variable_name> = <value>";
+                    break;
+                }
+
                 std::cout << "_CONST" << std::endl;
 
-                std::cout << tokens[i + 1].strValue << "bru";
+                std::string varBuild = tokens[i+2].strValue + " dq " + std::to_string(tokens[i + 4].value);
 
- 
-                lines.push_back({"Section", ".rdata",  "my_int dq"  });
+                variableNames.push_back(tokens[i+2].strValue);
+                
+                lines.push_back({"Section", ".rdata",  varBuild});
                 break;
-            
+            }
 
             // Opperators
 
@@ -144,7 +157,7 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
             // Var Types
 
             case Tokens::_INT:
-            std::cout << "_INT " << t.value << std::endl;
+            std::cout << "_INT " << std::endl;
                 break;
 
             case Tokens::_INT_LIT:

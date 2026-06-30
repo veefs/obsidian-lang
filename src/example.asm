@@ -18,6 +18,18 @@ obsidian_program:
     call WriteConsoleA
     add rsp, 40
 
+    ; print "terry davis 200iq divine intellect ahh"
+    sub rsp, 40
+    mov ecx, -11              ; STD_OUTPUT_HANDLE
+    call GetStdHandle
+    mov rcx, rax
+    lea rdx, [rel str1]
+    mov r8d, 40                ; "terry davis 200iq divine intellect ahh" + CRLF = 40 bytes
+    lea r9, [rel written]
+    mov qword [rsp+32], 0
+    call WriteConsoleA
+    add rsp, 40
+
     ; return 12
     sub rsp, 40
     mov ecx, 12
@@ -28,5 +40,9 @@ section .bss
 
 section .data
     str0 db "hello", 13, 10
+    str1 db "terry davis 200iq divine intellect ahh", 13, 10
+
 section .rdata
-    my_int dq
+    variable dq 5
+    otherVariable dq 10
+

@@ -5,6 +5,7 @@
 void Tokenize(std::string line, std::vector<Tokens>& tokens) {
     for (size_t i = 0; i < line.size(); i++) {
         char c = line[i];
+
         if (std::isspace(c)) continue;
 
         if (c == ';') {
@@ -47,7 +48,7 @@ void Tokenize(std::string line, std::vector<Tokens>& tokens) {
             while (i < line.size() && std::isalnum(line[i])) {
                 word += line[i];
                 i++;
-            }
+            } 
             i--;
 
             if (word == "return") {
@@ -61,6 +62,8 @@ void Tokenize(std::string line, std::vector<Tokens>& tokens) {
                 tokens.push_back(Tokens(Tokens::_INT));
             } else if(word == "const") {
               tokens.push_back(Tokens(Tokens::_CONST));
+            } else {
+                tokens.push_back(Tokens(Tokens::_IDENT, word));
             }
         }
     }

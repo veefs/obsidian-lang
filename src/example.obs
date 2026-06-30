@@ -1,5 +1,9 @@
 print "hello";
 
-const int test = 5;
+print "terry davis 200iq divine intellect ahh";
+
+const int variable = 5;
+
+const int otherVariable = 10;
 
 return 12;
