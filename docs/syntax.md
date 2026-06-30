@@ -5,23 +5,23 @@
 
 ### Functions
 
-_RETURN
-_PRINT
+-_RETURN
+-_PRINT
 
 ### Statement Terminators / Seperators
 
-_SEMI
+-_SEMI
 
 ### Variable Types
 
-_STRING
-_INT_LIT
-_INT
+-_STRING
+-_INT_LIT
+-_INT
 
 ### Variable Scopes
 
-_LET
-_COST
+-_LET
+-_COST
 
 ### Opperators
 
