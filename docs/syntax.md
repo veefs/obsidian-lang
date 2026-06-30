@@ -21,7 +21,7 @@
 ### Variable Scopes
 
 - _LET
-- _COST
+- _CONST
 
 ### Opperators
 
