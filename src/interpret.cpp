@@ -43,7 +43,9 @@ public:
 
         std::cout << "Finished Dumping: \n";
     }
+    
 
+    // Much more TODO need to add actual AST handeling and such but before than this works quite well
     std::string handleLambda(auto& Vec) {
         std::string instructions;
 
@@ -82,7 +84,60 @@ public:
         return instructions;
     }
 
+    std::string handleFunctions(auto& vec, std::string functionName) {
+
+	std::string instructions;
     
+	for(const auto& e : vec) { if(e == functionName) {
+
+		instructions += ("    call " + functionName + "\n"); 
+		instructions += ("    mov ecx, eax \n");
+		
+		
+	    }
+
+	}
+
+	return instructions;
+    }
+
+    std::string handleReturn(int code) {
+
+	std::string instructions;
+
+	switch(code) {
+	
+		case 0: {
+
+        	instructions += "    sub rsp, 40\n";
+        	instructions += "    mov ecx, 0\n";
+		    instructions += "    call ExitProcess";
+		break;
+		
+		}
+
+		case 1: {
+
+		    instructions += "    sub rsp, 40\n";
+		    instructions += "    call ExitProcess";
+		break;
+
+		}
+
+		default: {
+		
+		    instructions += "    sub rsp, 40\n";
+        	instructions += "    mov ecx, " + std::to_string(code) + "\n";
+        	instructions += "    call ExitProcess";
+		break;
+	
+		}
+
+	}
+
+	return instructions;
+
+    }
 };
 
 
@@ -122,6 +177,7 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
     std::vector<StrLiteral> dataStrings;
 
     bool sawReturn  = false;
+    bool sawReturnFunction = false;
     int  returnCode = 0; // default exit code if `return` is never written
 
     // ---- Pass 1: tokens -> IR ----------------------------------------
@@ -138,20 +194,43 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
         switch (t.keywords) {
 
             case Tokens::_RETURN: {
-                if (i + 1 >= tokens.size() || tokens[i + 1].keywords != Tokens::_INT_LIT) {
-                    std::cerr << "Interpret: 'return' must be followed by an integer literal\n";
-                    break;
-                }
 
-                std::cout << "_RETURN" << std::endl;
+		switch(tokens[i+1].keywords) {
 
-                // No branching exists yet, so whichever `return` is lexically
-                // last wins at runtime - just remember the value, the real
-                // exit code/call is emitted once at the very end.
-                returnCode = tokens[i + 1].value;
-                sawReturn  = true;
-                lines.push_back({"Header", "extern ExitProcess", "NA"});
-                i++; // consume the int literal we just looked ahead at
+			std::cout << "_RETURN" << std::endl;
+
+
+			case Tokens::_INT_LIT: {
+
+                		returnCode = tokens[i + 1].value;
+                		sawReturn  = true;
+                		lines.push_back({"Header", "extern ExitProcess", "NA"});
+				i++;
+				break;
+			}
+
+			case Tokens::_IDENT: {
+				
+				std::string funcIdent = tokens[i+1].strValue;
+				std::string test = h.handleFunctions(functionNames, funcIdent);
+                lines.push_back({"Program", "Function", test});
+				
+				std::cout << "DEBUG --------------------------------------\n";
+
+				std::cout << test;
+
+				sawReturn = true;
+				returnCode = 1;
+
+				lines.push_back({"Header", "extern ExitProcess", "NA"});
+
+				
+
+				break;
+			}
+	
+		}
+                
                 break;
             }
 
@@ -159,7 +238,7 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
                 if (i + 1 >= tokens.size() || tokens[i + 1].keywords != Tokens::_STRING) {
                     std::cerr << "Interpret: 'print' must be followed by a string literal\n";
                     break;
-                }
+                } 
 
                 std::cout << "_PRINT" << std::endl;
                 const std::string& strValue = tokens[i + 1].strValue;
@@ -180,6 +259,9 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
 
             case Tokens::_LET:
                 std::cout << "_LET" << std::endl;
+
+
+
                 break;
 
             case Tokens::_CONST: {
@@ -234,7 +316,22 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
                 std::cout << "_CLOSE_BRACKET" << std::endl;
                 break;
 
+            case Tokens::_OPEN_PARAM:
+                std::cout << "_OPEN_PARAM" << std::endl;
+                break;
+
+            case Tokens::_CLOSE_PARAM:
+                std::cout << "_CLOSE_PARAM" << std::endl;
+                break;
+
+
             // Var types
+	    
+	    // ident isn't really a var type but yk what It'll count
+	    
+	    case Tokens::_IDENT:
+		std::cout << "_IDENT" << std::endl;
+		break;
 
             case Tokens::_INT:
                 std::cout << "_INT " << std::endl;
@@ -261,18 +358,18 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
                 std::string functionCode = "";
 
                 // lambda func handling
-                switch (tokens[i + 2].keywords) {
+                switch (tokens[i + 4].keywords) {
 
                     case Tokens::_RET_OP: {
                         std::cout << "return op found \n";
 
-                        switch (tokens[i + 3].keywords) {
+                        switch (tokens[i + 5].keywords) {
 
                             case Tokens::_INT: {
-                                std::cout << tokens[i + 4].keywords << std::endl;
+                                std::cout << tokens[i + 5].keywords << std::endl;
                                 std::cout << "-------------------------------------------- \n";
 
-                                for (size_t parse = i + 4; parse != 999; parse++) {
+                                for (size_t parse = i + 5; parse != 999; parse++) {
 
                                     
 
@@ -314,7 +411,12 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
     // The exit sequence is exactly one block, always emitted last, so any
     // print statements written *after* a `return` can't clobber ecx before
     // ExitProcess actually runs.
-    lines.push_back({"Program", "EXIT", buildExitBlock(returnCode)});
+    
+    std::string returnText = h.handleReturn(returnCode);
+
+    std::cout << "RETURN CODE \n" << returnCode;
+
+    lines.push_back({"Program", "EXIT", returnText});
 
     for (const auto& s : dataStrings) {
         lines.push_back({"Section", ".data", s.label + " db \"" + s.text + "\", 13, 10"});
@@ -381,6 +483,8 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
                 outputFile << l.text << "\n";
             }
         }
+
+
         outputFile << "\n";
     }
 

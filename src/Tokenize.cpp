@@ -49,6 +49,18 @@ void Tokenize(std::string line, std::vector<Tokens>& tokens) {
             continue;
         }
 
+	if (c == '(') {
+            tokens.push_back(Tokens(Tokens::_OPEN_PARAM));
+            continue;
+        }
+
+
+	if (c == ')') {
+            tokens.push_back(Tokens(Tokens::_CLOSE_PARAM));
+            continue;
+        }
+
+
 
         char equal = '=';
         if (c == equal) {

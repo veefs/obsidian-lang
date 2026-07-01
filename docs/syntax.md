@@ -1,36 +1,49 @@
+# Obsidian Lang — Syntax Reference
 
-# Obsidian Lang
+## Tokens
 
-## All Tokens
+### Keywords
+- `_FUNCTION` — declares a function
+- `_RETURN` — returns from a function / exits the program
+- `_PRINT` — prints a string
+- `_LET` — mutable variable binding (tokenized, not yet wired to codegen)
+- `_CONST` — immutable variable binding
 
-### Functions
+### Types
+- `_INT` — the `int` type keyword
+- `_STRING` — string literal
+- `_INT_LIT` — integer literal
+- `_IDENT` — identifier (variable/function names)
 
-- _RETURN
-- _PRINT
+### Operators
+- `_EQUAL` — `=`
+- `_RET_OP` — `->` (return type annotation)
+- `_PLUS` — `+`
+- `_MINUS` — `-`
+- `_MULTIPLY` — `*`
+- `_DIVIDE` — `/`
 
-### Statement Terminators / Seperators
+### Grouping
+- `_OPEN_PARAM` / `_CLOSE_PARAM` — `(` `)`
+- `_OPEN_BRACKET` / `_CLOSE_BRACKET` — `{` `}`
 
-- _SEMI
+### Terminators
+- `_SEMI` — `;`
 
-### Variable Types
+## Syntax examples
 
-- _STRING
-- _INT_LIT
-- _INT
+```obsidian
+print "hello";
 
-### Variable Scopes
+const int x = 5;
 
-- _LET
-- _CONST
+func test() -> int { 2 + 2 };
 
-### Opperators
+return test();
+```
 
-- _EQUAL
-
-### Functions
-
-- _FUNC -> func test()
-
-
-
-
+## Known limitations
+- No operator precedence — expressions evaluate strictly left to right
+- Expression operands must be int literals (`_IDENT` operands not yet supported)
+- No control flow (`if`/`else`, loops)
+- Function bodies support a single expression, not multiple statements

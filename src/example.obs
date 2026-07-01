@@ -1,7 +1,5 @@
-print "Welcome to another dev log!"
-print "Please enjoy"
+print "lambda functions and function calls now work!"
 
 func test() -> int {2 + 2};
-func anothertest() -> int {2 - 2};
 
-return 12;
+return test(); 

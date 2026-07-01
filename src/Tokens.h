@@ -10,7 +10,7 @@ public:
         _RETURN,
         _PRINT,
         _FUNCTION,
-
+	
         //Opperators
         _SEMI,
         _EQUAL,
@@ -21,6 +21,9 @@ public:
         _DIVIDE,
         _OPEN_BRACKET,
         _CLOSE_BRACKET,
+	_OPEN_PARAM,
+	_CLOSE_PARAM,
+
 
         // Variable Types
         _STRING,
