@@ -39,6 +39,16 @@ void Tokenize(std::string line, std::vector<Tokens>& tokens) {
             continue;
         }
 
+        if (c == '{') {
+            tokens.push_back(Tokens(Tokens::_OPEN_BRACKET));
+            continue;
+        }
+
+        if (c == '}') {
+            tokens.push_back(Tokens(Tokens::_CLOSE_BRACKET));
+            continue;
+        }
+
 
         char equal = '=';
         if (c == equal) {

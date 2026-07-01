@@ -1,6 +1,7 @@
-print "Hello everyone this is the obsidian lang release!"
+print "Welcome to another dev log!"
 print "Please enjoy"
 
-func test() -> 2
+func test() -> int {2 + 2};
+func anothertest() -> int {2 - 2};
 
 return 12;

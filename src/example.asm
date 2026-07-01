@@ -8,6 +8,14 @@ section .text
 
 test:
     mov eax, 2
+    mov ebx, 2
+    add eax, ebx 
+    ret 
+
+anothertest:
+    mov eax, 2
+    mov ebx, 2
+    sub eax, ebx 
     ret 
 
 obsidian_program:
@@ -16,7 +24,7 @@ obsidian_program:
     call GetStdHandle
     mov rcx, rax
     lea rdx, [rel str0]
-    mov r8d, 51
+    mov r8d, 29
     lea r9, [rel written]
     mov qword [rsp+32], 0
     call WriteConsoleA
@@ -41,7 +49,7 @@ section .bss
     written resd 1
 
 section .data
-    str0 db "Hello everyone this is the obsidian lang release!", 13, 10
+    str0 db "Welcome to another dev log!", 13, 10
     str1 db "Please enjoy", 13, 10
 
 

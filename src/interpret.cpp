@@ -4,18 +4,14 @@
 #include <vector>
 #include <unordered_set>
 
-// ---------------------------------------------------------------------------
-// Interpreter Token (docs/archecture.md):
-//
-//   Section <Specifier>, <Section_type>,  <value_in_section>
-//   Header  <Specifier>, <header code>
-//   Function <Specificer>, <Function Name> <Function Code>
-//   Program <Specifier>, <program_type>,  <value>
-//   Info    <Specifier>, <info_require>,  <info_value>
-//   Create  <Specifier>, <specifier_type>,<specifier_value>
-//
-// All five shapes reuse one flat struct - we just read whichever fields
-// ---------------------------------------------------------------------------
+// Interpreter Token shapes (docs/archecture.md):
+//   Section  <Specifier>, <Section_type>,   <value_in_section>
+//   Header   <Specifier>, <header code>
+//   Function <Specifier>, <Function Name>,  <Function Code>
+//   Program  <Specifier>, <program_type>,   <value>
+//   Info     <Specifier>, <info_require>,   <info_value>
+//   Create   <Specifier>, <specifier_type>, <specifier_value>
+// All five shapes reuse one flat struct - we just read whichever fields apply.
 struct Line {
     std::string category; // Section | Header | Program | Info | Create
     std::string label;    // the "specifier" / sub-type
@@ -24,6 +20,70 @@ struct Line {
 
 std::vector<std::string> variableNames;
 std::vector<std::string> functionNames;
+std::vector<Tokens> tokVec;
+
+class Helpers {
+public:
+    void pushVec(auto& Vec, auto input) {
+        Vec.push_back(input);
+    }
+
+    void printVec(auto& Vec, int type) {
+        
+        std::cout << "Dumping Vec: \n";
+        
+        for (const auto& e : Vec) {
+            
+            switch(type) {
+                case 1:
+                    std::cout << Tokens::tokenName(e) << "\n";
+                    break;
+            }
+        }
+
+        std::cout << "Finished Dumping: \n";
+    }
+
+    std::string handleLambda(auto& Vec) {
+        std::string instructions;
+
+        for (size_t idx = 0; idx < Vec.size(); idx++) {
+
+            switch(Vec[idx].keywords) {
+
+                case Tokens::_PLUS: {
+
+                    std::string before = std::to_string(Vec[idx - 1].value);
+                    std::string after  = std::to_string(Vec[idx + 1].value);                    
+
+                    instructions += ("    mov eax, " + before + "\n");
+                    instructions += ("    mov ebx, " + after + "\n");
+                    instructions += ("    add eax, ebx \n");        
+                    break;
+                }
+
+                case Tokens::_MINUS: {
+
+                    std::string before = std::to_string(Vec[idx - 1].value);
+                    std::string after  = std::to_string(Vec[idx + 1].value);                    
+
+                    instructions += ("    mov eax, " + before + "\n");
+                    instructions += ("    mov ebx, " + after + "\n");
+                    instructions += ("    sub eax, ebx \n");        
+
+                    break;
+                }
+
+            }
+        }
+
+        Vec.clear();
+
+        return instructions;
+    }
+
+    
+};
 
 
 namespace {
@@ -43,10 +103,8 @@ std::string buildPrintBlock(const std::string& strValue, const std::string& labe
         "    add rsp, 40";
 }
 
-
-
 std::string buildExitBlock(int code) {
-    return 
+    return
         "    sub rsp, 40\n"
         "    mov ecx, " + std::to_string(code) + "\n"
         "    call ExitProcess";
@@ -56,6 +114,8 @@ std::string buildExitBlock(int code) {
 
 void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
 
+    Helpers h;
+
     std::vector<Line> lines;
 
     struct StrLiteral { std::string label; std::string text; };
@@ -64,11 +124,10 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
     bool sawReturn  = false;
     int  returnCode = 0; // default exit code if `return` is never written
 
-    // ---- Pass 1: tokens -> IR ---------------------------------------------
+    // ---- Pass 1: tokens -> IR ----------------------------------------
 
-    // Steps 1, 3, 4 are unconditional right now - every program gets a
-    // global directive, a .text section, and the obsidian_program label.
-
+    // Steps 1, 3, 4 are unconditional - every program gets a global
+    // directive, a .text section, and the obsidian_program label.
     lines.push_back({"Create", "global",  "global obsidian_program"});
     lines.push_back({"Create", "program", "obsidian_program"});
     lines.push_back({"Info",   "section", ".text"});
@@ -85,10 +144,10 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
                 }
 
                 std::cout << "_RETURN" << std::endl;
-                // No branching exists yet, so whichever `return` is
-                // lexically last is the one that actually wins at runtime -
-                // just remember the value, the real exit code/call is
-                // emitted once at the very end (see sawReturn below).
+
+                // No branching exists yet, so whichever `return` is lexically
+                // last wins at runtime - just remember the value, the real
+                // exit code/call is emitted once at the very end.
                 returnCode = tokens[i + 1].value;
                 sawReturn  = true;
                 lines.push_back({"Header", "extern ExitProcess", "NA"});
@@ -120,81 +179,74 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
             }
 
             case Tokens::_LET:
-
-            
                 std::cout << "_LET" << std::endl;
-
-                
-                
                 break;
-            
-            case Tokens::_CONST: {
 
+            case Tokens::_CONST: {
                 if (i + 3 >= tokens.size()) { break; }
 
-                if(static_cast<int>(tokens[i+2].keywords) != Tokens::_IDENT) {
+                if (static_cast<int>(tokens[i + 2].keywords) != Tokens::_IDENT) {
                     std::cerr << "Correct syntax for const = const <variable_type> <variable_name> = <value>";
                     break;
                 }
 
                 std::cout << "_CONST" << std::endl;
 
-                std::string varBuild = tokens[i+2].strValue + " dq " + std::to_string(tokens[i + 4].value);
+                std::string varBuild = tokens[i + 2].strValue + " dq " + std::to_string(tokens[i + 4].value);
 
-                variableNames.push_back(tokens[i+2].strValue);
-                
-                lines.push_back({"Section", ".rdata",  varBuild});
+                variableNames.push_back(tokens[i + 2].strValue);
+
+                lines.push_back({"Section", ".rdata", varBuild});
                 break;
             }
 
-            // Opperators
+            // Operators
 
-            case Tokens::_RET_OP: 
+            case Tokens::_RET_OP:
                 std::cout << "_RET_OP" << std::endl;
-                                
                 break;
 
-            case Tokens::_MINUS: 
+            case Tokens::_MINUS:
                 std::cout << "_MINUS" << std::endl;
-                                
                 break;
 
-            case Tokens::_PLUS: 
+            case Tokens::_PLUS:
                 std::cout << "_PLUS" << std::endl;
-                                
                 break;
 
-            case Tokens::_MULTIPLY: 
+            case Tokens::_MULTIPLY:
                 std::cout << "_MULTIPLY" << std::endl;
-                                
                 break;
 
-            case Tokens::_DIVIDE: 
+            case Tokens::_DIVIDE:
                 std::cout << "_DIVIDE" << std::endl;
-                                
                 break;
-           
 
             case Tokens::_EQUAL:
                 std::cout << "_EQUAL" << std::endl;
                 break;
 
-            // Var Types
+            case Tokens::_OPEN_BRACKET:
+                std::cout << "_OPEN_BRACKET" << std::endl;
+                break;
+
+            case Tokens::_CLOSE_BRACKET:
+                std::cout << "_CLOSE_BRACKET" << std::endl;
+                break;
+
+            // Var types
 
             case Tokens::_INT:
-            std::cout << "_INT " << std::endl;
+                std::cout << "_INT " << std::endl;
                 break;
 
             case Tokens::_INT_LIT:
-            std::cout << "_INT_LIT " << t.value << std::endl;
-                break; 
+                std::cout << "_INT_LIT " << t.value << std::endl;
+                break;
 
             case Tokens::_STRING:
                 std::cout << "_STRING(" << t.strValue << ") - not attached to a statement, ignored\n";
                 break;
-            
-
-            // Semi
 
             case Tokens::_SEMI:
                 std::cout << "_SEMI" << std::endl;
@@ -204,26 +256,51 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
 
             case Tokens::_FUNCTION: {
                 std::cout << "_FUNCTION" << std::endl;
-                                
-                std::string functionName = tokens[i+1].strValue;
+                
+                std::string functionName = tokens[i + 1].strValue;
                 std::string functionCode = "";
 
-                if(tokens[i+2].keywords == Tokens::_RET_OP) {
+                // lambda func handling
+                switch (tokens[i + 2].keywords) {
 
-                    if(tokens[i+3].keywords == Tokens::_INT_LIT) {
-  
-                        functionCode = functionCode + "    mov eax, " + std::to_string(tokens[i+3].value) + "\n";
+                    case Tokens::_RET_OP: {
+                        std::cout << "return op found \n";
+
+                        switch (tokens[i + 3].keywords) {
+
+                            case Tokens::_INT: {
+                                std::cout << tokens[i + 4].keywords << std::endl;
+                                std::cout << "-------------------------------------------- \n";
+
+                                for (size_t parse = i + 4; parse != 999; parse++) {
+
+                                    
+
+                                    if(tokens[parse].keywords == Tokens::_CLOSE_BRACKET) {break;}
+
+                                    if(tokens[parse].keywords == Tokens::_OPEN_BRACKET) {
+                                        continue;
+                                    } else {
+                                        h.pushVec(tokVec, tokens[parse]);
+                                    }
+      
+                                }
+                    
+                                functionCode += h.handleLambda(tokVec);
+
+                                break;
+                            }
+                        }
+
+                        break;
                     }
-
-                    functionCode = functionCode + "    ret \n";
                 }
-               
-                lines.push_back({"Function", functionName, functionCode});
+                functionCode += "    ret \n";
 
+                lines.push_back({"Function", functionName, functionCode});
                 functionNames.push_back(functionName);
                 break;
-          }
-
+            }
         }
     }
 
@@ -234,17 +311,16 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
         lines.push_back({"Header", "extern ExitProcess", "NA"});
     }
 
-    // Step 6: the exit sequence is exactly one block, always emitted last.
-    // It's built fresh here (rather than at the `return` token's source
-    // position) so that any print statements written *after* a `return`
-    // can't clobber ecx before ExitProcess actually runs.
+    // The exit sequence is exactly one block, always emitted last, so any
+    // print statements written *after* a `return` can't clobber ecx before
+    // ExitProcess actually runs.
     lines.push_back({"Program", "EXIT", buildExitBlock(returnCode)});
 
     for (const auto& s : dataStrings) {
         lines.push_back({"Section", ".data", s.label + " db \"" + s.text + "\", 13, 10"});
     }
 
-    // ---- Pass 2: IR -> assembly, fixed order from docs/archecture.md -----
+    // ---- Pass 2: IR -> assembly, fixed order from docs/archecture.md ----
 
     // 1. Create, global, global obsidian_program
     for (const auto& l : lines) {
@@ -254,7 +330,7 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
         }
     }
 
-    // 2. Header, all values 
+    // 2. Header, all values
     {
         std::unordered_set<std::string> seen;
         for (const auto& l : lines) {
@@ -272,20 +348,15 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
             outputFile << "\n";
             break;
         }
-
     }
 
-    // function
-
+    // Functions
     for (const auto& l : lines) {
-        if (l.category == "Function" ) {
-
+        if (l.category == "Function") {
             outputFile << l.label << ":\n";
             outputFile << l.text << "\n";
-
         }
     }
-
 
     // 4. Create, program, obsidian_program
     for (const auto& l : lines) {
@@ -294,8 +365,6 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
             break;
         }
     }
-
-    
 
     // 5 & 6. Program, all types
     {
@@ -315,7 +384,7 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
         outputFile << "\n";
     }
 
-    // 7. Section, .bss, written resd 1 
+    // 7. Section, .bss, written resd 1
     {
         bool wroteHeader = false;
         std::unordered_set<std::string> seen;
@@ -328,7 +397,7 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
         if (wroteHeader) outputFile << "\n";
     }
 
-    // 8. Section, .data, <data_inputs> 
+    // 8. Section, .data, <data_inputs>
     {
         bool wroteHeader = false;
         for (const auto& l : lines) {
@@ -336,12 +405,10 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
             if (!wroteHeader) { outputFile << "section .data\n"; wroteHeader = true; }
             outputFile << "    " << l.text << "\n";
         }
-
-	if(outputFile) outputFile << "\n";
-
+        if (outputFile) outputFile << "\n";
     }
 
-    // 9. Section, .rdata, <rdata_inputs> 
+    // 9. Section, .rdata, <rdata_inputs>
     {
         bool wroteHeader = false;
         for (const auto& l : lines) {
@@ -349,25 +416,9 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
             if (!wroteHeader) { outputFile << "section .rdata\n"; wroteHeader = true; }
             outputFile << "    " << l.text << "\n";
         }
-
-	if(outputFile) outputFile << "\n";
-
-
+        if (outputFile) outputFile << "\n";
     }
 
-    // General Debugging Stuff (dumping vectors etc)
-    std::cout << "Debuging: " << std::endl;
-    std::cout << "--------------------------------------------" << std::endl;
+    // Debug dump
 
-    std::cout << "All functions:" << std::endl;
-    for(const auto& e : functionNames) {
-        std::cout << e << std::endl;
-    }
-
-    std::cout << std::endl;
-
-    std::cout << "All variables:" << std::endl;
-    for(const auto& e : variableNames) {
-        std::cout << e << std::endl;
-    }
 }
