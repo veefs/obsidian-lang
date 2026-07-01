@@ -12,6 +12,32 @@ void Tokenize(std::string line, std::vector<Tokens>& tokens) {
             tokens.push_back(Tokens(Tokens::_SEMI));
             continue;
         }
+        
+        if (c == '-' && i + 1 < line.size() && line[i + 1] == '>') {
+            tokens.push_back(Tokens(Tokens::_RET_OP));
+            i++; // consume the '>' too
+            continue;
+        }
+
+        if (c == '+') {
+            tokens.push_back(Tokens(Tokens::_PLUS));
+            continue;
+        }
+
+        if (c == '-') {
+            tokens.push_back(Tokens(Tokens::_MINUS));
+            continue;
+        }
+
+        if (c == '*') {
+            tokens.push_back(Tokens(Tokens::_MULTIPLY));
+            continue;
+        }
+
+        if (c == '/') {
+            tokens.push_back(Tokens(Tokens::_DIVIDE));
+            continue;
+        }
 
 
         char equal = '=';
@@ -19,6 +45,8 @@ void Tokenize(std::string line, std::vector<Tokens>& tokens) {
             tokens.push_back(Tokens(Tokens::_EQUAL));
             continue;
         }
+
+        
 
         if (c == '"') {
             i++; 
@@ -33,11 +61,7 @@ void Tokenize(std::string line, std::vector<Tokens>& tokens) {
             continue;
         }
 
-        if (c == '-' && i + 1 < line.size() && line[i + 1] == '>') {
-            tokens.push_back(Tokens(Tokens::_RET_OP));
-            i++; // consume the '>' too
-            continue;
-        }
+        
 
         if (std::isdigit(c)) {
             std::string number;
@@ -73,11 +97,7 @@ void Tokenize(std::string line, std::vector<Tokens>& tokens) {
               tokens.push_back(Tokens(Tokens::_CONST));
             } else if(word == "func") {
                 tokens.push_back(Tokens(Tokens::_FUNCTION));
-            } else if(word == "->") {
-                tokens.push_back(Tokens(Tokens::_RET_OP));
-            }
-            
-            else {
+            } else {
                 tokens.push_back(Tokens(Tokens::_IDENT, word));
             }
         }

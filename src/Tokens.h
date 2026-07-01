@@ -5,18 +5,31 @@
 class Tokens {
 public:
     enum Keywords {
+
+        // Functions
         _RETURN,
         _PRINT,
+        _FUNCTION,
+
+        //Opperators
         _SEMI,
+        _EQUAL,
+        _RET_OP,
+        _PLUS,
+        _MINUS,
+        _MULTIPLY,
+        _DIVIDE,
+
+        // Variable Types
         _STRING,
         _INT_LIT,
         _INT,
-        _LET,
-        _EQUAL,
-        _CONST,
         _IDENT,
-        _FUNCTION,
-        _RET_OP
+
+        // Variable scopes
+        _LET,
+        _CONST
+        
     };
 
     Tokens(Keywords kw) : keywords(kw), value(0) {}

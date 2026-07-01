@@ -31,14 +31,12 @@ namespace {
 // One WriteConsoleA call, with the CRLF byte count baked in.
 std::string buildPrintBlock(const std::string& strValue, const std::string& label, int byteCount) {
     return
-        "    ; print \"" + strValue + "\"\n"
         "    sub rsp, 40\n"
-        "    mov ecx, -11              ; STD_OUTPUT_HANDLE\n"
+        "    mov ecx, -11\n"
         "    call GetStdHandle\n"
         "    mov rcx, rax\n"
         "    lea rdx, [rel " + label + "]\n"
-        "    mov r8d, " + std::to_string(byteCount) +
-            "                ; \"" + strValue + "\" + CRLF = " + std::to_string(byteCount) + " bytes\n"
+        "    mov r8d, " + std::to_string(byteCount) + "\n"
         "    lea r9, [rel written]\n"
         "    mov qword [rsp+32], 0\n"
         "    call WriteConsoleA\n"
@@ -49,7 +47,6 @@ std::string buildPrintBlock(const std::string& strValue, const std::string& labe
 
 std::string buildExitBlock(int code) {
     return 
-        "    ; return " + std::to_string(code) + "\n"
         "    sub rsp, 40\n"
         "    mov ecx, " + std::to_string(code) + "\n"
         "    call ExitProcess";
@@ -156,6 +153,26 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
                 std::cout << "_RET_OP" << std::endl;
                                 
                 break;
+
+            case Tokens::_MINUS: 
+                std::cout << "_MINUS" << std::endl;
+                                
+                break;
+
+            case Tokens::_PLUS: 
+                std::cout << "_PLUS" << std::endl;
+                                
+                break;
+
+            case Tokens::_MULTIPLY: 
+                std::cout << "_MULTIPLY" << std::endl;
+                                
+                break;
+
+            case Tokens::_DIVIDE: 
+                std::cout << "_DIVIDE" << std::endl;
+                                
+                break;
            
 
             case Tokens::_EQUAL:
@@ -189,12 +206,21 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
                 std::cout << "_FUNCTION" << std::endl;
                                 
                 std::string functionName = tokens[i+1].strValue;
+                std::string functionCode = "";
 
                 if(tokens[i+2].keywords == Tokens::_RET_OP) {
-                    
+
+                    if(tokens[i+3].keywords == Tokens::_INT_LIT) {
+  
+                        functionCode = functionCode + "    mov eax, " + std::to_string(tokens[i+3].value) + "\n";
+                    }
+
+                    functionCode = functionCode + "    ret \n";
                 }
                
-                lines.push_back({"Function", functionName, functionName});
+                lines.push_back({"Function", functionName, functionCode});
+
+                functionNames.push_back(functionName);
                 break;
           }
 
@@ -255,7 +281,7 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
         if (l.category == "Function" ) {
 
             outputFile << l.label << ":\n";
-            outputFile << l.text << ":\n";
+            outputFile << l.text << "\n";
 
         }
     }
@@ -325,5 +351,23 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
         }
 
 	if(outputFile) outputFile << "\n";
+
+
+    }
+
+    // General Debugging Stuff (dumping vectors etc)
+    std::cout << "Debuging: " << std::endl;
+    std::cout << "--------------------------------------------" << std::endl;
+
+    std::cout << "All functions:" << std::endl;
+    for(const auto& e : functionNames) {
+        std::cout << e << std::endl;
+    }
+
+    std::cout << std::endl;
+
+    std::cout << "All variables:" << std::endl;
+    for(const auto& e : variableNames) {
+        std::cout << e << std::endl;
     }
 }

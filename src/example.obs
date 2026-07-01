@@ -1,10 +1,6 @@
-print "hello";
-print "terry davis 200iq divine intellect ahh";
+print "Hello everyone this is the obsidian lang release!"
+print "Please enjoy"
 
-const int variable = 5;
-const int otherVariable = 10;
-
-func test() -> variable + otherVariable;
-func hello();
+func test() -> 2
 
 return 12;
