@@ -165,7 +165,7 @@ std::string buildExitBlock(int code) {
         "    call ExitProcess";
 }
 
-} // namespace
+} 
 
 void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
 
@@ -326,8 +326,7 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
 
 
             // Var types
-	    
-	    // ident isn't really a var type but yk what It'll count
+
 	    
 	    case Tokens::_IDENT:
 		std::cout << "_IDENT" << std::endl;
@@ -369,9 +368,8 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
                                 std::cout << tokens[i + 5].keywords << std::endl;
                                 std::cout << "-------------------------------------------- \n";
 
-                                for (size_t parse = i + 5; parse != 999; parse++) {
-
-                                    
+				// gotta make a better solution vs the 999
+                                for (size_t parse = i + 5; parse != 999; parse++) {         
 
                                     if(tokens[parse].keywords == Tokens::_CLOSE_BRACKET) {break;}
 
@@ -404,6 +402,7 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
     // A program always has to exit somehow. If the source never wrote an
     // explicit `return`, fall back to `return 0` instead of falling off
     // the end of .text into .bss/.data.
+    /
     if (!sawReturn) {
         lines.push_back({"Header", "extern ExitProcess", "NA"});
     }
@@ -452,7 +451,7 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
         }
     }
 
-    // Functions
+    // 4. Check for any functions, this may have to be revamped
     for (const auto& l : lines) {
         if (l.category == "Function") {
             outputFile << l.label << ":\n";
@@ -460,7 +459,7 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
         }
     }
 
-    // 4. Create, program, obsidian_program
+    // 5. Create, program, obsidian_program
     for (const auto& l : lines) {
         if (l.category == "Create" && l.label == "program") {
             outputFile << l.text << ":\n";
@@ -468,7 +467,7 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
         }
     }
 
-    // 5 & 6. Program, all types
+    // 6 & 7. Program, all types
     {
         bool first = true;
         for (const auto& l : lines) {
@@ -488,7 +487,7 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
         outputFile << "\n";
     }
 
-    // 7. Section, .bss, written resd 1
+    // 8. Section, .bss, written resd 1
     {
         bool wroteHeader = false;
         std::unordered_set<std::string> seen;
@@ -501,7 +500,7 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
         if (wroteHeader) outputFile << "\n";
     }
 
-    // 8. Section, .data, <data_inputs>
+    // 9. Section, .data, <data_inputs>
     {
         bool wroteHeader = false;
         for (const auto& l : lines) {
@@ -512,7 +511,7 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
         if (outputFile) outputFile << "\n";
     }
 
-    // 9. Section, .rdata, <rdata_inputs>
+    // 10. Section, .rdata, <rdata_inputs>
     {
         bool wroteHeader = false;
         for (const auto& l : lines) {
@@ -523,6 +522,5 @@ void Interpret(const std::vector<Tokens>& tokens, std::ofstream& outputFile) {
         if (outputFile) outputFile << "\n";
     }
 
-    // Debug dump
 
 }

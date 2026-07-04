@@ -24,8 +24,6 @@ int main(int argc, char* argv[]) {
     std::vector<Tokens> tokens;
     std::string line;
 
-    //std::cout << "Input File Contents: " << std::endl;
-    //std::cout << "--------------------------------------------" << std::endl;
 
     while (std::getline(inputFile, line)) {
         //std::cout << line << std::endl;
@@ -38,8 +36,6 @@ int main(int argc, char* argv[]) {
     if (asmFile.is_open()) {
         
 
-        //std::cout << std::endl << "Interpreting:" << std::endl;
-        //std::cout << "--------------------------------------------" << std::endl;
 
 
         Interpret(tokens, asmFile);
